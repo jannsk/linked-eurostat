@@ -57,6 +57,9 @@ public class DataServlet extends HttpServlet {
 			conn.setConnectTimeout(8*1000);
 			conn.setReadTimeout(8*1000);
 			
+			// Bugfix since user agent java is blocked by Eurostat.
+			conn.setRequestProperty("User-agent", "notjava");
+			
 			InputStream is = new GZIPInputStream(conn.getInputStream());
 
 			if (conn.getResponseCode() != 200) {
