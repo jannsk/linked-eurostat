@@ -33,49 +33,47 @@ public class TimelineServlet extends HttpServlet {
 		}
 
 		resp.setContentType("text/html");
-		
+
 		OutputStream os = resp.getOutputStream();
 
 		String query = req.getParameter("query");
 		ServletContext ctx = getServletContext();
 
-		resp.setHeader("Cache-Control", "public");
-		Calendar c = Calendar.getInstance();
-		//c.add(Calendar.DATE, 1);
-		c.add(Calendar.HOUR, 2);
-		resp.setHeader("Expires", Listener.RFC822.format(c.getTime()));
+		// 2 h
+		resp.setHeader("Cache-Control", "public,max-age=7200");
 
-		XMLOutputFactory factory = (XMLOutputFactory)ctx.getAttribute(Listener.FACTORY);
+		XMLOutputFactory factory = (XMLOutputFactory) ctx.getAttribute(Listener.FACTORY);
 
-		try {    		
+		try {
 			XMLStreamWriter ch = factory.createXMLStreamWriter(os, "utf-8");
 			ch.writeStartDocument("utf-8", "1.0");
 
 			ch.writeStartElement("html");
-			
+
 			ch.writeStartElement("head");
 			ch.writeStartElement("title");
 			ch.writeCharacters("Timeline Visualisation");
 			ch.writeEndElement();
-			
+
 			ch.writeStartElement("link");
 			ch.writeAttribute("rel", "stylesheet");
 			ch.writeAttribute("href", "style.css");
 			ch.writeAttribute("type", "text/css");
 			ch.writeEndElement();
-			
+
 			ch.writeStartElement("script");
 			ch.writeAttribute("type", "text/javascript");
 			ch.writeAttribute("src", "protovis-r3.2.js");
 			ch.writeEndElement();
-			
+
 			ch.writeStartElement("script");
 			ch.writeAttribute("type", "text/javascript");
 			ch.writeAttribute("src", "http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js");
-		//"http://ajax.microsoft.com/ajax/jquery/jquery-1.5.min.js");
-			//ch.writeAttribute("src", "http://ajax.microsoft.com/ajax/jquery/jquery-1.4.2.min.js");
+			// "http://ajax.microsoft.com/ajax/jquery/jquery-1.5.min.js");
+			// ch.writeAttribute("src",
+			// "http://ajax.microsoft.com/ajax/jquery/jquery-1.4.2.min.js");
 			ch.writeEndElement();
-			
+
 			ch.writeStartElement("script");
 			ch.writeAttribute("type", "text/javascript");
 			ch.writeAttribute("src", "../vis/date.js");
@@ -87,7 +85,7 @@ public class TimelineServlet extends HttpServlet {
 			ch.writeAttribute("src", "vis.js");
 			ch.writeCharacters(" ");
 			ch.writeEndElement();
-			
+
 			ch.writeEndElement();
 
 			ch.writeStartElement("body");
@@ -106,11 +104,11 @@ public class TimelineServlet extends HttpServlet {
 			ch.writeStartElement("h2");
 			ch.writeCharacters("Visualisation");
 			ch.writeEndElement();
-			
+
 			ch.writeStartElement("div");
 			ch.writeAttribute("id", "progress");
 			ch.writeStartElement("img");
-			ch.writeAttribute("src", "../vis/wait30trans.gif");			
+			ch.writeAttribute("src", "../vis/wait30trans.gif");
 			ch.writeEndElement();
 			ch.writeEndElement();
 
@@ -121,7 +119,7 @@ public class TimelineServlet extends HttpServlet {
 			ch.writeStartElement("div");
 			ch.writeAttribute("id", "map");
 			ch.writeEndElement();
-			
+
 			ch.writeStartElement("h2");
 			ch.writeCharacters("Query");
 			ch.writeEndElement();
@@ -149,7 +147,7 @@ public class TimelineServlet extends HttpServlet {
 			ch.writeEndElement();
 
 			ch.writeEndElement();
-			
+
 			ch.writeEndDocument();
 
 			ch.close();
@@ -160,7 +158,7 @@ public class TimelineServlet extends HttpServlet {
 		} catch (RuntimeException e) {
 			resp.sendError(500, e.getMessage());
 			e.printStackTrace();
-			return;			
+			return;
 		}
 
 		os.close();

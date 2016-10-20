@@ -73,11 +73,8 @@ public class DataServlet extends HttpServlet {
 
 			BufferedReader in = new BufferedReader(new InputStreamReader(is, encoding));
 
-			resp.setHeader("Cache-Control", "public");
-			Calendar c = Calendar.getInstance();
-			c.add(Calendar.HOUR, 1);
-			resp.setHeader("Expires", Listener.RFC822.format(c.getTime()));
-			//resp.setHeader("Content-Encoding", "gzip");
+			// 1 hour
+    		resp.setHeader("Cache-Control", "public,max-age=600");
 
 			XMLOutputFactory factory = (XMLOutputFactory)ctx.getAttribute(Listener.FACTORY);
 
