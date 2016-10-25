@@ -84,6 +84,7 @@ public class DsdServlet extends HttpServlet {
 			Transformer t = (Transformer)ctx.getAttribute(Listener.SDMX_T);
 
 			resp.setContentType("application/rdf+xml");
+			resp.setHeader("Content-Disposition", "attachment; filename='" + id + "_dsd.rdf'");
 
 			// 1 day
     		resp.setHeader("Cache-Control", "public,max-age=86400");

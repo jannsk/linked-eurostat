@@ -22,6 +22,7 @@
 
 	<xsl:variable name="lowercase" select="'abcdefghijklmnopqrstuvwxyz'" />
 	<xsl:variable name="uppercase" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'" />
+	<xsl:variable name="measureDimension" select="translate('INDIC|YES_NO|HHSTATUS|C_BIRTH|IND_TYPE|INCGRP|ind_type|wstatus', $lowercase, $uppercase)" />
 
 	<xsl:template match='sdmx:Structure'>
 		<rdf:RDF>
@@ -45,16 +46,6 @@
 
 			<qb:DataStructureDefinition rdf:about="#dsd">
 				<foaf:page rdf:resource="" />
-				<qb:component>
-					<rdf:Description>
-						<qb:measure>
-							<rdfs:Property
-								rdf:about="http://purl.org/linked-data/sdmx/2009/measure#obsValue">
-								<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#double" />
-							</rdfs:Property>
-						</qb:measure>
-					</rdf:Description>
-				</qb:component>
 				<qb:component>
 					<rdf:Description>
 						<qb:dimension>
@@ -119,6 +110,11 @@
 								<xsl:when test="@id = 'CL_GEO'">
 									<!-- Do nothing. -->
 								</xsl:when>
+								<xsl:when test="matches(@id, $measureDimension)">
+									<qb:dimension>
+										<rdfs:Property rdf:about="qb:measureType"></rdfs:Property>
+									</qb:dimension>
+								</xsl:when>
 								<xsl:otherwise>
 									<qb:dimension>
 										<rdfs:Property>
@@ -136,6 +132,32 @@
 						</rdf:Description>
 					</qb:component>
 				</xsl:for-each>
+				<xsl:for-each select="sdmx:CodeLists/structure:CodeList[matches(@id, $measureDimension)]/structure:Code">
+					<qb:component>
+						<rdf:Description>
+							<qb:measure>
+								<rdfs:Property>
+									<xsl:attribute name="rdf:about">http://ontologycentral.com/2009/01/eurostat/ns#<xsl:value-of
+												select="@value" /></xsl:attribute>
+									<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#double" />
+									<xsl:apply-templates />
+								</rdfs:Property>
+							</qb:measure>
+						</rdf:Description>
+					</qb:component>
+				</xsl:for-each>
+				<xsl:if test="count(sdmx:CodeLists/structure:CodeList[matches(@id, $measureDimension)]) = 0">
+					<qb:component>
+						<rdf:Description>
+							<qb:measure>
+								<rdfs:Property
+									rdf:about="http://purl.org/linked-data/sdmx/2009/measure#obsValue">
+									<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#double" />
+								</rdfs:Property>
+							</qb:measure>
+						</rdf:Description>
+					</qb:component>
+				</xsl:if>
 			</qb:DataStructureDefinition>
 
 			<xsl:apply-templates />
@@ -165,7 +187,7 @@
 	</xsl:template>
 
 	<xsl:template match='structure:CodeList'>
-		<xsl:if test="@id != 'CL_GEO'">
+		<xsl:if test="(@id != 'CL_GEO') and not((matches(@id, $measureDimension)))">
 			<skos:ConceptScheme>
 				<xsl:attribute name="rdf:about">#<xsl:value-of
 					select="translate(@id, $uppercase, $lowercase)" /></xsl:attribute>

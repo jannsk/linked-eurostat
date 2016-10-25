@@ -44,7 +44,8 @@ public class Listener implements ServletContextListener {
 	public static String TOC = "t";
 	public static String CACHE = "c";
 	
-	public static String SDMX_T = "sdmx";	
+	public static String SDMX_T = "sdmx";
+	public static String SDMX_D = "data";
 
 	public static String NUTS = "nuts";	
 
@@ -77,6 +78,15 @@ public class Listener implements ServletContextListener {
 		try {
 			Transformer t = tf.newTransformer(new StreamSource(ctx.getRealPath("/WEB-INF/dsd2rdf.xsl")));
 			ctx.setAttribute(SDMX_T, t);
+		} catch (TransformerConfigurationException e) {
+			_log.severe(e.getMessage());
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+		
+		try {
+			Transformer t = tf.newTransformer(new StreamSource(ctx.getRealPath("/WEB-INF/data2rdf.xsl")));
+			ctx.setAttribute(SDMX_D, t);
 		} catch (TransformerConfigurationException e) {
 			_log.severe(e.getMessage());
 			e.printStackTrace();

@@ -1,104 +1,100 @@
 package com.ontologycentral.estatwrap.webapp;
 
-import java.io.BufferedReader;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Calendar;
-import java.util.Map;
 import java.util.logging.Logger;
-import java.util.zip.GZIPInputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
-
-import com.ontologycentral.estatwrap.convert.DataPage;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 @SuppressWarnings("serial")
 public class DataServlet extends HttpServlet {
 	Logger _log = Logger.getLogger(this.getClass().getName());
 
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-		if (req.getServerName().contains("estatwrap.appspot.com")) {
-			try {
-				URI re = new URI("http://estatwrap.ontologycentral.com/" + req.getRequestURI());
-				re = re.normalize();
-				resp.sendRedirect(re.toString());
-			} catch (URISyntaxException e) {
-				resp.sendError(500, e.getMessage());
-			}
-			return;
-		}
-
-		resp.setContentType("application/rdf+xml");
-
 		OutputStream os = resp.getOutputStream();
-		//OutputStreamWriter osw = new OutputStreamWriter(os , "UTF-8");
-
+		
 		String id = req.getRequestURI();
 		id = id.substring("/data/".length());
-
+		
 		ServletContext ctx = getServletContext();
 
-		URL url = new URL(Listener.URI_PREFIX + "?file=data/" + id + ".tsv.gz");
+		URL u = new URL(Listener.URI_PREFIX + "?file=data/" + id + ".sdmx.zip");
 
+		_log.info("retrieving " + u);
+		
 		try {
-			HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-			conn.setConnectTimeout(8*1000);
-			conn.setReadTimeout(8*1000);
-			
+			HttpURLConnection conn = (HttpURLConnection)u.openConnection();
+
 			// Bugfix since user agent java is blocked by Eurostat.
 			conn.setRequestProperty("User-agent", "notjava");
-			
-			InputStream is = new GZIPInputStream(conn.getInputStream());
+			conn.setConnectTimeout(60*1000);
+			conn.setReadTimeout(60*1000);
 
 			if (conn.getResponseCode() != 200) {
-				resp.sendError(conn.getResponseCode());
+				throw new RuntimeException("lookup on " + u + " resulted HTTP in status code " + conn.getResponseCode());
 			}
+
+			InputStream is = conn.getInputStream();
 
 			String encoding = conn.getContentEncoding();
 			if (encoding == null) {
 				encoding = "ISO-8859-1";
 			}
 
-			BufferedReader in = new BufferedReader(new InputStreamReader(is, encoding));
+			ZipInputStream zis = new ZipInputStream(new BufferedInputStream(is));
 
-			// 1 hour
-    		resp.setHeader("Cache-Control", "public,max-age=600");
+			ZipEntry ze;
+			while((ze = zis.getNextEntry()) != null) {
+				if (ze.getName().contains("sdmx.xml") ) {
+					break;
+				}
+			}
 
-			XMLOutputFactory factory = (XMLOutputFactory)ctx.getAttribute(Listener.FACTORY);
+			Transformer t = (Transformer)ctx.getAttribute(Listener.SDMX_D);
 
-			Map<String, String> toc = (Map<String, String>)ctx.getAttribute(Listener.TOC);
+			resp.setContentType("application/rdf+xml");
+			resp.setHeader("Content-Disposition", "attachment; filename='" + id + "_data.rdf'");
 
-			XMLStreamWriter ch = factory.createXMLStreamWriter(os, "utf-8");
+			// 1 day
+    		resp.setHeader("Cache-Control", "public,max-age=86400");
 
-			DataPage.convert(ch, toc, id, in);
+			StreamSource ssource = new StreamSource(zis);
+			StreamResult sresult = new StreamResult(os);
 
-			ch.close();
-		} catch (IOException e) {
-			resp.sendError(500, url + ": " + e.getMessage());
-			e.printStackTrace();
+			_log.info("lapplying xslt");
+
+			t.transform(ssource, sresult);
+
+			zis.close();
+		} catch (TransformerException e) {
+			e.printStackTrace(); 
+			resp.sendError(500, e.getMessage());
 			return;
-		} catch (XMLStreamException e) {
-			resp.sendError(500, url + ": " + e.getMessage());
+		} catch (IOException e) {
+			resp.sendError(500, u + ": " + e.getMessage());
 			e.printStackTrace();
 			return;
 		} catch (RuntimeException e) {
-			resp.sendError(500, url + ": " + e.getMessage());
+			resp.sendError(500, u + ": " + e.getMessage());
 			e.printStackTrace();
 			return;			
 		}
 
 		os.close();
+		
 	}
+	
 }
