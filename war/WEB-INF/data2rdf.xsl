@@ -3,7 +3,6 @@
 	<xsl:output method="xml" encoding="utf-8"/>
 	<xsl:variable name="lowercase" select="'abcdefghijklmnopqrstuvwxyz'"/>
 	<xsl:variable name="uppercase" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
-	<xsl:variable name="measureDimension" select="translate('INDIC|YES_NO|HHSTATUS|C_BIRTH|ind_type|incgrp|ind_type|wstatus', $uppercase, $lowercase)"/>
 	<xsl:variable name="id" select="//sdmx:ID"/>
 	<xsl:template match="sdmx:CompactData">
 		<rdf:RDF>
@@ -27,37 +26,39 @@
 					<xsl:attribute name="rdf:resource">/dsd/<xsl:value-of select="$id"/>#dsd</xsl:attribute>
 				</qb:structure>
 			</qb:DataSet>
-			<xsl:for-each select="*[local-name()='DataSet']/*[local-name()='Series']">
+			<!-- TODO Remove restrictions -->
+			<xsl:for-each select="*[local-name()='DataSet']/*[local-name()='Series'][position()&lt;=10]">
 				<xsl:variable name="series" select="."/>
-				<xsl:for-each select="*[local-name()='Obs']">
+				<xsl:for-each select="*[local-name()='Obs'][position()&lt;=5]">
 					<xsl:variable name="obs" select="."/>
 					<qb:Observation>
 						<qb:dataSet>
 							<xsl:attribute name="rdf:resource">/id/<xsl:value-of select="$id"/>#ds</xsl:attribute>
 						</qb:dataSet>
 						<xsl:for-each select="$series/@*">
-							<xsl:choose>
-								<xsl:when test="matches(name(), $measureDimension)">
-									<qb:measureType rdf:resource="{.}"></qb:measureType>
-									<xsl:element name="custom:{.}">
-										<xsl:attribute name="rdf:datatype">http://www.w3.org/2001/XMLSchema#double</xsl:attribute>
-										<xsl:value-of select="$obs/@OBS_VALUE"/>
-									</xsl:element>
-								</xsl:when>
-								<xsl:otherwise>
-									<xsl:element name="custom:{translate(name(), $uppercase, $lowercase)}">
-										<xsl:attribute name="rdf:resource">/dic/<xsl:value-of select="translate(name(), $uppercase, $lowercase)"/>#<xsl:value-of select="."/></xsl:attribute>
-									</xsl:element>
-								</xsl:otherwise>
-							</xsl:choose>
+							<xsl:element name="custom:{translate(name(), $uppercase, $lowercase)}">
+								<xsl:attribute name="rdf:resource">/dic/<xsl:value-of select="translate(name(), $uppercase, $lowercase)"/>#<xsl:value-of select="."/></xsl:attribute>
+							</xsl:element>
 						</xsl:for-each>
 						<xsl:for-each select="$obs/@*">
 							<xsl:choose>
-								<xsl:when test="name() = 'OBS_VALUE' and count($series/@*[matches(name(), $measureDimension)]) > 0">
-									<!-- do nothing -->
+								<xsl:when test="name() = 'OBS_VALUE'">
+									<sdmx-measure:obsValue>
+										<xsl:choose>
+											<xsl:when test=". = ':'">
+												<xsl:attribute name="rdf:datatype">http://www.w3.org/2001/XMLSchema#string</xsl:attribute>
+											</xsl:when>
+											<xsl:otherwise>
+												<xsl:attribute name="rdf:datatype">http://www.w3.org/2001/XMLSchema#double</xsl:attribute>
+												<xsl:value-of select="."/>
+											</xsl:otherwise>
+										</xsl:choose>
+									</sdmx-measure:obsValue>
 								</xsl:when>
 								<xsl:when test="name() = 'TIME_PERIOD'">
-									<dcterms:date><xsl:value-of select="."/></dcterms:date>
+									<dcterms:date>
+										<xsl:value-of select="replace(replace(replace(replace(replace(replace(., 'M', '-'), 'D', '-'), 'Q1', '-03-31'), 'Q2', '-06-30'), 'Q3', '-09-30'), 'Q4', '-12-31')"/>
+									</dcterms:date>
 								</xsl:when>
 								<xsl:otherwise>
 									<xsl:element name="custom:{translate(name(), $uppercase, $lowercase)}">
