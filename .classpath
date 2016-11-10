@@ -6,8 +6,11 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="lib" path="lib/commons-cli-1.2.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/saxon-9.2.jar"/>
-	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/servlet.jar"/>
 	<classpathentry kind="lib" path="lib/jcache-1.0-dev-3.jar"/>
+	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/ehcache-core-2.4.4.jar"/>
+	<classpathentry kind="lib" path="lib/saxon9-xqj.jar"/>
+	<classpathentry kind="lib" path="lib/saxon9he.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

@@ -110,7 +110,7 @@
 									<qb:dimension>
 										<rdfs:Property>
 											<xsl:attribute name="rdf:about">http://ontologycentral.com/2009/01/eurostat/ns#<xsl:value-of
-												select="translate(@id, $uppercase, $lowercase)" /></xsl:attribute>
+												select="substring(translate(@id, $uppercase, $lowercase), 4)" /></xsl:attribute>
 											<xsl:if test="@id = 'CL_GEO'">
 												<owl:sameAs rdf:resource="http://rdfdata.eionet.europa.eu/ramon/ontology/NUTSRegion"/>
 											</xsl:if>

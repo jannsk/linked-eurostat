@@ -26,10 +26,10 @@
 					<xsl:attribute name="rdf:resource">/dsd/<xsl:value-of select="$id"/>#dsd</xsl:attribute>
 				</qb:structure>
 			</qb:DataSet>
-			<!-- TODO Remove restrictions -->
-			<xsl:for-each select="*[local-name()='DataSet']/*[local-name()='Series'][position()&lt;=10]">
+			<!-- TODO Remove restrictions [position()&lt;=10][position()&lt;=5] -->
+			<xsl:for-each select="*[local-name()='DataSet']/*[local-name()='Series']">
 				<xsl:variable name="series" select="."/>
-				<xsl:for-each select="*[local-name()='Obs'][position()&lt;=5]">
+				<xsl:for-each select="*[local-name()='Obs']">
 					<xsl:variable name="obs" select="."/>
 					<qb:Observation>
 						<qb:dataSet>

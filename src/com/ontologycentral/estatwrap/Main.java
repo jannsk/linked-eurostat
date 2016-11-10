@@ -26,6 +26,9 @@ import org.apache.commons.cli.ParseException;
 import com.ontologycentral.estatwrap.convert.Data;
 import com.ontologycentral.estatwrap.convert.DataPage;
 import com.ontologycentral.estatwrap.convert.DictionaryPage;
+import com.ontologycentral.extatwrap.handler.DataHandler;
+import com.ontologycentral.extatwrap.handler.DictionaryHandler;
+import com.ontologycentral.extatwrap.handler.DsdHandler;
 
 public class Main {
 	public static void main(String[] args) throws IOException, XMLStreamException {
@@ -43,6 +46,10 @@ public class Main {
 		dicO.setArgs(1);
 		options.addOption(dicO);
 		
+		Option type = new Option("type", "type (e.g., data or dsd). Only works with i");
+		type.setArgs(1);
+		options.addOption(type);
+		
 		Option helpO = new Option("h", "help", false, "print help");
 		options.addOption(helpO);
 		
@@ -54,6 +61,12 @@ public class Main {
 			
 			if (!(cmd.hasOption("i") || cmd.hasOption("d"))) {
 				throw new ParseException("specify either -i or -d");
+			}
+			if (cmd.hasOption("i") && !(cmd.hasOption("type"))) {
+				throw new ParseException("specify either -type");
+			}
+			if (cmd.hasOption("type") && !(cmd.getOptionValue("type").equals("data") || cmd.getOptionValue("type").equals("dsd"))) {
+				throw new ParseException("-type does only support data and dsd");
 			}
 		} catch (ParseException e) {
 			System.err.println("***ERROR: " + e.getClass() + ": " + e.getMessage());
@@ -78,55 +91,28 @@ public class Main {
 			}
 		}
 		
-		Data.MAX_COLS = Integer.MAX_VALUE;
-		Data.MAX_ROWS = Integer.MAX_VALUE;
-		
 		String id = null;
-		URL url = null;
 		
-		if (cmd.hasOption("i")) {
-			id = cmd.getOptionValue("i");
-			url = new URL("http://epp.eurostat.ec.europa.eu/NavTree_prod/everybody/BulkDownloadListing?file=data/" + id + ".tsv.gz");
-			//url = new URL("http://epp.eurostat.ec.europa.eu/NavTree_prod/everybody/BulkDownloadListing?file=" + URLEncoder.encode("data/" + id + ".tsv.gz", "utf-8"));
-		} else if (cmd.hasOption("d")) {
-			id = cmd.getOptionValue("d");
-			url = new URL("http://epp.eurostat.ec.europa.eu/NavTree_prod/everybody/BulkDownloadListing?file=dic/en/" + id + ".dic");
+		try {
+			if (cmd.hasOption("i")) {
+				id = cmd.getOptionValue("i");
+				if (cmd.getOptionValue("type").equals("dsd")) {
+					System.out.println("Running DsdHandler");
+					new DsdHandler().perform(id, "./war", out);
+				}
+				if (cmd.getOptionValue("type").equals("data")) {
+					System.out.println("Running DataHandler");
+					new DataHandler().perform(id, "./war", out);
+				}
+			} else if (cmd.hasOption("d")) {
+				id = cmd.getOptionValue("d");
+				System.out.println("Running DictionaryHandler");
+				new DictionaryHandler().perform(id, out);
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+			System.exit(1);
 		}
-
-		System.out.println(url);
-
-		HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-		
-		InputStream is = null;
-				
-		if (url.toString().endsWith("gz")) {
-			//is = conn.getInputStream();			
-			is = new GZIPInputStream(conn.getInputStream());
-		} else {
-			is = conn.getInputStream();			
-		}
-		if (conn.getResponseCode() != 200) {
-			throw new IOException("Response code: " + conn.getResponseCode());
-		}
-
-		String encoding = conn.getContentEncoding();
-		if (encoding == null) {
-			encoding = "ISO-8859-1";
-		}
-
-		BufferedReader in = new BufferedReader(new InputStreamReader(is, encoding));
-
-	    XMLOutputFactory factory = XMLOutputFactory.newInstance();
-		
-		XMLStreamWriter ch = factory.createXMLStreamWriter(out, "utf-8");
-
-		if (cmd.hasOption("i")) {
-			DataPage.convert(ch, new HashMap<String, String>(), id, in);
-		} else if (cmd.hasOption("d")) {
-			//DictionaryPage.convert(ch, id, in);
-		}
-
-		ch.close();
 
 		out.close();
 	}

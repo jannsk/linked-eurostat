@@ -29,8 +29,10 @@
       <zipfileset src="lib/commons-cli-1.2.jar"/>
       <zipfileset src="lib/servlet.jar"/>
       <zipfileset src="lib/jcache-1.0-dev-3.jar"/>
+      <zipfileset excludes="META-INF/**/*" src="lib/saxon9he.jar"/>
+      <zipfileset excludes="META-INF/**/*" src="lib/saxon9-xqj.jar"/>
       <manifest>
-	<attribute name="Main-Class" value="com.ontologycentral.estatwrap.Main"/>
+		<attribute name="Main-Class" value="com.ontologycentral.estatwrap.Main"/>
       </manifest>
     </jar>
 
