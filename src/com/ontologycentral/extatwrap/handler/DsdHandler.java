@@ -23,10 +23,10 @@ import net.sf.saxon.TransformerFactoryImpl;
 public class DsdHandler {
 	Logger _log = Logger.getLogger(this.getClass().getName());
 
-	public void perform(String id, String webInfPath, OutputStream os) throws IOException, TransformerException {
+	public void perform(String id, String xslParentDirectory, OutputStream os) throws IOException, TransformerException {
 		TransformerFactory tf = new TransformerFactoryImpl();
 		
-		Transformer t = tf.newTransformer(new StreamSource(webInfPath + "/WEB-INF/dsd2rdf.xsl"));
+		Transformer t = tf.newTransformer(new StreamSource(xslParentDirectory + "/dsd2rdf.xsl"));
 		
 		URL u = new URL(Listener.URI_PREFIX + "?file=data/" + id + ".sdmx.zip");
 
@@ -65,6 +65,8 @@ public class DsdHandler {
 		_log.info("lapplying xslt");
 
 		t.transform(ssource, sresult);
+		
+		_log.info("lapplying xslt done");
 
 		zis.close();
 	}

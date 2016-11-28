@@ -27,7 +27,7 @@ public class DsdServlet extends HttpServlet {
 
 			// 1 day
 			resp.setHeader("Cache-Control", "public,max-age=86400");
-			new DsdHandler().perform(id, ".", os);
+			new DsdHandler().perform(id, "./WEB-INF", os);
 		} catch (TransformerException e) {
 			e.printStackTrace(); 
 			resp.sendError(500, e.getMessage());

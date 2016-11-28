@@ -31,6 +31,7 @@
       <zipfileset src="lib/jcache-1.0-dev-3.jar"/>
       <zipfileset excludes="META-INF/**/*" src="lib/saxon9he.jar"/>
       <zipfileset excludes="META-INF/**/*" src="lib/saxon9-xqj.jar"/>
+      <fileset dir="war/WEB-INF"/>
       <manifest>
 		<attribute name="Main-Class" value="com.ontologycentral.estatwrap.Main"/>
       </manifest>

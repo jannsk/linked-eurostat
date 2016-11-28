@@ -98,11 +98,11 @@ public class Main {
 				id = cmd.getOptionValue("i");
 				if (cmd.getOptionValue("type").equals("dsd")) {
 					System.out.println("Running DsdHandler");
-					new DsdHandler().perform(id, "./war", out);
+					new DsdHandler().perform(id, ".", out);
 				}
 				if (cmd.getOptionValue("type").equals("data")) {
 					System.out.println("Running DataHandler");
-					new DataHandler().perform(id, "./war", out);
+					new DataHandler().perform(id, ".", out);
 				}
 			} else if (cmd.hasOption("d")) {
 				id = cmd.getOptionValue("d");

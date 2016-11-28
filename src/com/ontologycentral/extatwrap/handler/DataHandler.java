@@ -20,11 +20,11 @@ import com.ontologycentral.estatwrap.webapp.Listener;
 public class DataHandler {
 	Logger _log = Logger.getLogger(this.getClass().getName());
 	
-	public void perform(String id, String webInfPath, OutputStream os) throws IOException, TransformerException {
+	public void perform(String id, String xslParentDirectory, OutputStream os) throws IOException, TransformerException {
 		javax.xml.transform.TransformerFactory tf =
 			      javax.xml.transform.TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl",
 			    		  Thread.currentThread().getContextClassLoader()); 
-		Transformer t = tf.newTransformer(new StreamSource(webInfPath + "/WEB-INF/data2rdf.xsl"));
+		Transformer t = tf.newTransformer(new StreamSource(xslParentDirectory + "/data2rdf.xsl"));
 		
 		URL u = new URL(Listener.URI_PREFIX + "?file=data/" + id + ".sdmx.zip");
 	
@@ -63,6 +63,8 @@ public class DataHandler {
 		_log.info("lapplying xslt");
 	
 		t.transform(ssource, sresult);
+		
+		_log.info("lapplying xslt done");
 	
 		zis.close();
 	}

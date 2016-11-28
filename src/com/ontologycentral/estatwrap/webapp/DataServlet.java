@@ -27,7 +27,7 @@ public class DataServlet extends HttpServlet {
 
 			// 1 day
 			resp.setHeader("Cache-Control", "public,max-age=86400");
-			new DataHandler().perform(id, ".", os);
+			new DataHandler().perform(id, "./WEB-INF", os);
 		} catch (TransformerException e) {
 			e.printStackTrace(); 
 			resp.sendError(500, e.getMessage());
