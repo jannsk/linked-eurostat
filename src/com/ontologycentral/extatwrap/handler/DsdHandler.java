@@ -4,7 +4,6 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
@@ -18,6 +17,8 @@ import javax.xml.transform.stream.StreamSource;
 
 import com.ontologycentral.estatwrap.webapp.Listener;
 
+import loader.FileLoader;
+import loader.TableOfContentsLoader;
 import net.sf.saxon.TransformerFactoryImpl;
 
 public class DsdHandler {
@@ -28,27 +29,23 @@ public class DsdHandler {
 		
 		Transformer t = tf.newTransformer(new StreamSource(xslParentDirectory + "/dsd2rdf.xsl"));
 		
+		TableOfContentsLoader toc = new TableOfContentsLoader();
+		String measureLabel = toc.getTitle(id);
+		String datasetDescription = toc.getDescription(id);
+//		String unit = toc.getUnit(id);
+//		if (unit != null) {
+//			datasetDescription += " Unit: "+unit;
+//		}
+		t.setParameter("measureLabel", measureLabel.replace("&", "&amp;"));
+		t.setParameter("datasetDescription", datasetDescription.replace("&", "&amp;"));
+		
+		// or use toc.getSMDXDownloadLink(id)
 		URL u = new URL(Listener.URI_PREFIX + "?file=data/" + id + ".sdmx.zip");
 
 		_log.info("retrieving " + u);
 		
-		HttpURLConnection conn = (HttpURLConnection)u.openConnection();
-
-		// Bugfix since user agent java is blocked by Eurostat.
-		conn.setRequestProperty("User-agent", "notjava");
-		conn.setConnectTimeout(120*1000);
-		conn.setReadTimeout(300*1000);
-
-		if (conn.getResponseCode() != 200) {
-			throw new RuntimeException("lookup on " + u + " resulted HTTP in status code " + conn.getResponseCode());
-		}
-
-		InputStream is = conn.getInputStream();
-
-		String encoding = conn.getContentEncoding();
-		if (encoding == null) {
-			encoding = "ISO-8859-1";
-		}
+		FileLoader loader = new FileLoader(u);
+		InputStream is = loader.get();
 
 		ZipInputStream zis = new ZipInputStream(new BufferedInputStream(is));
 

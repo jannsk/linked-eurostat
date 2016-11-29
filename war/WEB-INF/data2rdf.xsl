@@ -19,14 +19,16 @@
 			<qb:DataSet>
 				<xsl:attribute name="rdf:about">/id/<xsl:value-of select="$id"/>#ds</xsl:attribute>
 				<rdfs:comment>Source: Eurostat (http://epp.eurostat.ec.europa.eu/) via Linked Eurostat (http://estatwrap.ontologycentral.com/).</rdfs:comment>
-				<rdfs:seeAlso rdf:resource="http://epp.eurostat.ec.europa.eu/portal/page/portal/about_eurostat/corporate/copyright_licence_policy"/>
+				<rdfs:seeAlso rdf:resource="http://ec.europa.eu/geninfo/legal_notices_en.htm#copyright"/>
 				<rdfs:seeAlso rdf:resource="http://ontologycentral.com/2009/01/eurostat/"/>
+				<rdfs:seeAlso>
+					<xsl:attribute name="rdf:resource">http://ec.europa.eu/eurostat/tgm/table.do?tab=table&amp;init=1&amp;language=en&amp;pcode=<xsl:value-of select="$id"/></xsl:attribute>
+				</rdfs:seeAlso>
 				<foaf:page rdf:resource=""/>
 				<qb:structure>
 					<xsl:attribute name="rdf:resource">/dsd/<xsl:value-of select="$id"/>#dsd</xsl:attribute>
 				</qb:structure>
 			</qb:DataSet>
-			<!-- TODO Remove restrictions [position()&lt;=10][position()&lt;=5] -->
 			<xsl:for-each select="*[local-name()='DataSet']/*[local-name()='Series']">
 				<xsl:variable name="series" select="."/>
 				<xsl:for-each select="*[local-name()='Obs']">

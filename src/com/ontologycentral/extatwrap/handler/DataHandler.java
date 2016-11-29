@@ -4,7 +4,6 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
@@ -17,6 +16,8 @@ import javax.xml.transform.stream.StreamSource;
 
 import com.ontologycentral.estatwrap.webapp.Listener;
 
+import loader.FileLoader;
+
 public class DataHandler {
 	Logger _log = Logger.getLogger(this.getClass().getName());
 	
@@ -26,27 +27,14 @@ public class DataHandler {
 			    		  Thread.currentThread().getContextClassLoader()); 
 		Transformer t = tf.newTransformer(new StreamSource(xslParentDirectory + "/data2rdf.xsl"));
 		
+		// TableOfContentsLoader toc = new TableOfContentsLoader();
+		// or use toc.getSMDXDownloadLink(id)
 		URL u = new URL(Listener.URI_PREFIX + "?file=data/" + id + ".sdmx.zip");
-	
+		
 		_log.info("retrieving " + u);
 		
-		HttpURLConnection conn = (HttpURLConnection)u.openConnection();
-	
-		// Bugfix since user agent java is blocked by Eurostat.
-		conn.setRequestProperty("User-agent", "notjava");
-		conn.setConnectTimeout(120*1000);
-		conn.setReadTimeout(300*1000);
-	
-		if (conn.getResponseCode() != 200) {
-			throw new RuntimeException("lookup on " + u + " resulted HTTP in status code " + conn.getResponseCode());
-		}
-	
-		InputStream is = conn.getInputStream();
-	
-		String encoding = conn.getContentEncoding();
-		if (encoding == null) {
-			encoding = "ISO-8859-1";
-		}
+		FileLoader loader = new FileLoader(u);
+		InputStream is = loader.get();
 	
 		ZipInputStream zis = new ZipInputStream(new BufferedInputStream(is));
 	

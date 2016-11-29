@@ -21,6 +21,9 @@
 
 	<xsl:output method='xml' encoding='utf-8' />
 
+	<xsl:param name="measureLabel" />
+	<xsl:param name="datasetDescription" />
+
 	<xsl:variable name="lowercase" select="'abcdefghijklmnopqrstuvwxyz'" />
 	<xsl:variable name="uppercase" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'" />
 
@@ -33,6 +36,9 @@
 					Linked Eurostat (http://estatwrap.ontologycentral.com/)
 				</dcterms:publisher>
 				<foaf:topic rdf:resource="#dsd" />
+				<dcterms:description>
+					<xsl:value-of select="$datasetDescription"/> 
+				</dcterms:description>
 			</rdf:Description>
 
 			<!-- The dimension components serve to identify the observations. A set 
@@ -52,6 +58,7 @@
 							<rdfs:Property
 								rdf:about="http://purl.org/linked-data/sdmx/2009/measure#obsValue">
 								<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#double" />
+								<rdfs:label><xsl:value-of select="$measureLabel"/></rdfs:label> 
 							</rdfs:Property>
 						</qb:measure>
 					</rdf:Description>
