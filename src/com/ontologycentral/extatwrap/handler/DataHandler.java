@@ -17,19 +17,27 @@ import javax.xml.transform.stream.StreamSource;
 import com.ontologycentral.estatwrap.webapp.Listener;
 
 import loader.FileLoader;
+import loader.TableOfContentsLoader;
 
 public class DataHandler {
 	Logger _log = Logger.getLogger(this.getClass().getName());
 	
+	/**
+	 * Downloads and transforms requested dataset data to xml
+	 * @param id Identifier of the requested dataset
+	 * @param xslParentDirectory Directory with data2rdf.xsl file
+	 * @param os OutputStream to write xml results
+	 * @throws IOException
+	 * @throws TransformerException
+	 */
 	public void perform(String id, String xslParentDirectory, OutputStream os) throws IOException, TransformerException {
 		javax.xml.transform.TransformerFactory tf =
 			      javax.xml.transform.TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl",
 			    		  Thread.currentThread().getContextClassLoader()); 
 		Transformer t = tf.newTransformer(new StreamSource(xslParentDirectory + "/data2rdf.xsl"));
 		
-		// TableOfContentsLoader toc = new TableOfContentsLoader();
-		// or use toc.getSMDXDownloadLink(id)
-		URL u = new URL(Listener.URI_PREFIX + "?file=data/" + id + ".sdmx.zip");
+		TableOfContentsLoader toc = new TableOfContentsLoader();
+		URL u = new URL(toc.getSMDXDownloadLink(id));
 		
 		_log.info("retrieving " + u);
 		

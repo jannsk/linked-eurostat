@@ -10,8 +10,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.logging.Logger;
 
-import com.google.appengine.api.utils.SystemProperty;
-
 public class FileLoader {
 	Logger _log = Logger.getLogger(this.getClass().getName());
 	
@@ -41,10 +39,10 @@ public class FileLoader {
 	private InputStream loadUrl() throws IOException {
 		HttpURLConnection conn = (HttpURLConnection)url.openConnection();
 		
-		// Bugfix since user agent java is blocked by Eurostat.
+		// Workaround since user agent java is blocked by Eurostat.
 		conn.setRequestProperty("User-agent", "notjava");
-		conn.setConnectTimeout(120*1000);
-		conn.setReadTimeout(300*1000);
+		conn.setConnectTimeout(900*1000);
+		conn.setReadTimeout(900*1000);
 		
 		if (conn.getResponseCode() != 200) {
 			throw new RuntimeException("lookup on " + url + " resulted HTTP in status code " + conn.getResponseCode());
@@ -79,7 +77,7 @@ public class FileLoader {
 		directory = new File("estatwrap-cache");
 		directory.mkdirs();
 		File file = new File(directory.getAbsolutePath()+"/"+this.escapedUrl);
-		if (file.exists() && file.lastModified() > System.currentTimeMillis() - (24*60*60*1000)) {
+		if (file.exists() && (file.lastModified() > (System.currentTimeMillis() - (24*60*60)))) {
 			return true;
 		} else {
 			file.delete();

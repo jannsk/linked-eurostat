@@ -24,6 +24,14 @@ import net.sf.saxon.TransformerFactoryImpl;
 public class DsdHandler {
 	Logger _log = Logger.getLogger(this.getClass().getName());
 
+	/**
+	 * Downloads and transforms requested dataset dsd to xml
+	 * @param id Identifier of the requested dataset
+	 * @param xslParentDirectory Directory with data2rdf.xsl file
+	 * @param os OutputStream to write xml results
+	 * @throws IOException
+	 * @throws TransformerException
+	 */
 	public void perform(String id, String xslParentDirectory, OutputStream os) throws IOException, TransformerException {
 		TransformerFactory tf = new TransformerFactoryImpl();
 		
@@ -32,6 +40,9 @@ public class DsdHandler {
 		TableOfContentsLoader toc = new TableOfContentsLoader();
 		String measureLabel = toc.getTitle(id);
 		String datasetDescription = toc.getDescription(id);
+		if (datasetDescription.equals("")) {
+			datasetDescription = measureLabel;
+		}
 //		String unit = toc.getUnit(id);
 //		if (unit != null) {
 //			datasetDescription += " Unit: "+unit;
@@ -40,7 +51,7 @@ public class DsdHandler {
 		t.setParameter("datasetDescription", datasetDescription.replace("&", "&amp;"));
 		
 		// or use toc.getSMDXDownloadLink(id)
-		URL u = new URL(Listener.URI_PREFIX + "?file=data/" + id + ".sdmx.zip");
+		URL u = new URL(toc.getSMDXDownloadLink(id));
 
 		_log.info("retrieving " + u);
 		
