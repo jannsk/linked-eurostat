@@ -1,19 +1,10 @@
 package com.ontologycentral.estatwrap;
 
-import java.io.BufferedReader;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.zip.GZIPInputStream;
 
-import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -23,9 +14,6 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import com.ontologycentral.estatwrap.convert.Data;
-import com.ontologycentral.estatwrap.convert.DataPage;
-import com.ontologycentral.estatwrap.convert.DictionaryPage;
 import com.ontologycentral.extatwrap.handler.DataHandler;
 import com.ontologycentral.extatwrap.handler.DictionaryHandler;
 import com.ontologycentral.extatwrap.handler.DsdHandler;
